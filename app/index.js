@@ -120,6 +120,7 @@ AppGenerator.prototype.askForModules = function askForModules() {
     ]
   }];
 
+
   this.prompt(prompts, function (props) {
     var hasMod = function (mod) { return props.modules.indexOf(mod) !== -1; };
     this.animateModule = hasMod('animateModule');
@@ -130,32 +131,41 @@ AppGenerator.prototype.askForModules = function askForModules() {
     this.touchModule = hasMod('touchModule');
 
     var angMods = [];
+    this.angModules = [];
 
     if (this.animateModule) {
       angMods.push("'ngAnimate'");
+      this.angModules.push('angular-animate');
     }
 
     if (this.cookiesModule) {
       angMods.push("'ngCookies'");
+      this.angModules.push('angular-cookies');
+
     }
 
     if (this.resourceModule) {
       angMods.push("'ngResource'");
+      this.angModules.push('angular-resource');
     }
 
     if (this.routeModule) {
       angMods.push("'ngRoute'");
+      this.angModules.push('angular-route');
       this.env.options.ngRoute = true;
     }
 
     if (this.sanitizeModule) {
       angMods.push("'ngSanitize'");
+      this.angModules.push('angular-sanitize');
     }
 
     if (this.touchModule) {
       angMods.push("'ngTouch'");
+      this.angModules.push('angular-touch');
     }
 
+    
     if (angMods.length) {
       this.angularModules = '\n    ' + angMods.join(',\n    ') + '\n  ';
     }
@@ -183,6 +193,13 @@ AppGenerator.prototype.bower = function () {
     private: true,
     dependencies: {}
   };
+
+  bower.dependencies['angular'] = "~1.2.24";
+
+  for (var i = 0; i < this.angModules.length; i++) {
+    bower.dependencies[this.angModules[i]] = "~1.2.24";
+    this.log('ang mod here ' + this.angModules[i]);
+  }
 
   bower.dependencies['ui-router'] = "~0.2.11";
   if (this.includeBootstrap) {
@@ -213,7 +230,7 @@ AppGenerator.prototype.h5bp = function () {
 };
 
 AppGenerator.prototype.testing = function () {
-  this.template('app.js', 'app/js/app.js');
+  this.template('app.js', 'app/scripts/app.js');
 };
 
 AppGenerator.prototype.mainStylesheet = function () {
@@ -228,20 +245,19 @@ AppGenerator.prototype.writeIndex = function () {
   this.indexFile = this.appendFiles({
     html: this.indexFile,
     fileType: 'js',
-    optimizedPath: 'scripts/main.js',
-    sourceFileList: ['scripts/main.js']
+    optimizedPath: 'scripts/app.js',
+    sourceFileList: ['scripts/app.js']
   });
 };
 
 AppGenerator.prototype.app = function () {
   this.mkdir('app');
-  this.mkdir('app/js');
-  this.mkdir('app/js/constants');
-  this.mkdir('app/js/controllers');
-  this.mkdir('app/js/directives');
-  this.mkdir('app/js/filters');
-  this.mkdir('app/js/services');
-  this.mkdir('app/css');
+  this.mkdir('app/scripts');
+  this.mkdir('app/scripts/constants');
+  this.mkdir('app/scripts/controllers');
+  this.mkdir('app/scripts/directives');
+  this.mkdir('app/scripts/filters');
+  this.mkdir('app/scripts/services');
   this.mkdir('app/images');
   this.mkdir('app/fonts');
   this.write('app/index.html', this.indexFile);
