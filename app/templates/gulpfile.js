@@ -1,18 +1,26 @@
 'use strict';
-// generated on <%= (new Date).toISOString().split('T')[0] %> using <%= pkg.name %> <%= pkg.version %>
+// generated on 2014-09-16 using generator-angular-gulp 0.1.0
 var gulp = require('gulp');
 var $ = require('gulp-load-plugins')();
 
-gulp.task('styles', function () {<% if (includeSass) { %>
+gulp.task('styles', function () {
   return gulp.src('app/styles/main.scss')
     .pipe($.plumber())
     .pipe($.rubySass({
       style: 'expanded',
       precision: 10
-    }))<% } else { %>
-  return gulp.src('app/styles/main.css')<% } %>
+    }))
     .pipe($.autoprefixer('last 1 version'))
     .pipe(gulp.dest('.tmp/styles'));
+});
+
+gulp.task('js', function () {
+  return gulp.src('app/scripts/**/*.js')
+    .pipe($.plumber())
+    .pipe($.ngAnnotate({add:true,single_quotes:true}))
+    .pipe($.angularFilesort())
+    .pipe($.concat('app.js'))
+    .pipe(gulp.dest('.tmp/scripts'));
 });
 
 gulp.task('jshint', function () {
@@ -22,18 +30,17 @@ gulp.task('jshint', function () {
     .pipe($.jshint.reporter('fail'));
 });
 
-gulp.task('html', ['styles'], function () {<% if (includeBootstrap && includeSass) { %>
+gulp.task('html', ['styles', 'js'], function () {
   var lazypipe = require('lazypipe');
   var cssChannel = lazypipe()
     .pipe($.csso)
-    .pipe($.replace, 'bower_components/bootstrap-sass-official/assets/fonts/bootstrap','fonts');<% } %>
+    .pipe($.replace, 'bower_components/bootstrap-sass-official/assets/fonts/bootstrap','fonts');
   var assets = $.useref.assets({searchPath: '{.tmp,app}'});
 
   return gulp.src('app/*.html')
     .pipe(assets)
-    .pipe($.if('*.js', $.uglify()))<% if (includeBootstrap && includeSass) { %>
-    .pipe($.if('*.css', cssChannel()))<% } else { %>
-    .pipe($.if('*.css', $.csso()))<% } %>
+    .pipe($.if('*.js', $.uglify()))
+    .pipe($.if('*.css', cssChannel()))
     .pipe(assets.restore())
     .pipe($.useref())
     .pipe(gulp.dest('dist'));
@@ -86,20 +93,20 @@ gulp.task('connect', function () {
     });
 });
 
-gulp.task('serve', ['connect'<% if (includeSass) { %>, 'styles'<% } %>], function () {
+gulp.task('serve', ['connect', 'styles', 'js'], function () {
   require('opn')('http://localhost:9000');
 });
 
 // inject bower components
 gulp.task('wiredep', function () {
   var wiredep = require('wiredep').stream;
-<% if (includeSass) { %>
+
   gulp.src('app/styles/*.scss')
     .pipe(wiredep())
     .pipe(gulp.dest('app/styles'));
-<% } %>
+
   gulp.src('app/*.html')
-    .pipe(wiredep(<% if (includeSass && includeBootstrap) { %>{exclude: ['bootstrap-sass-official']}<% } %>))
+    .pipe(wiredep({exclude: ['bootstrap-sass-official']}))
     .pipe(gulp.dest('app'));
 });
 
@@ -114,7 +121,8 @@ gulp.task('watch', ['connect', 'serve'], function () {
     'app/images/**/*'
   ]).on('change', $.livereload.changed);
 
-  gulp.watch('app/styles/**/*.<%= includeSass ? 'scss' : 'css' %>', ['styles']);
+  gulp.watch('app/styles/**/*.scss', ['styles']);
+  gulp.watch('app/scripts/**/*.js', ['js']);
   gulp.watch('bower.json', ['wiredep']);
 });
 

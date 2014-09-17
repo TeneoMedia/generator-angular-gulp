@@ -44,7 +44,7 @@ AppGenerator.prototype.askFor = function askFor() {
 
   // welcome message
   if (!this.options['skip-welcome-message']) {
-    this.log(yosay());
+    this.log(yosay('Time to start angular'));
     this.log(chalk.magenta('Out of the box I include HTML5 Boilerplate, jQuery, and a gulpfile.js to build your app.'));
   }
 
@@ -229,8 +229,10 @@ AppGenerator.prototype.h5bp = function () {
   this.copy('robots.txt', 'app/robots.txt');
 };
 
-AppGenerator.prototype.testing = function () {
-  this.template('app.js', 'app/scripts/app.js');
+AppGenerator.prototype.angular = function () {
+  this.template('main.js', 'app/scripts/main.js');
+  this.template('HomeCtrl.js', 'app/scripts/controllers/HomeCtrl.js');
+  this.template('OtherCtrl.js', 'app/scripts/controller/OtherCtrl.js');
 };
 
 AppGenerator.prototype.mainStylesheet = function () {
@@ -245,8 +247,8 @@ AppGenerator.prototype.writeIndex = function () {
   this.indexFile = this.appendFiles({
     html: this.indexFile,
     fileType: 'js',
-    optimizedPath: 'scripts/app.js',
-    sourceFileList: ['scripts/app.js']
+    optimizedPath: 'scripts/main.js',
+    sourceFileList: ['scripts/main.js']
   });
 };
 
@@ -258,6 +260,7 @@ AppGenerator.prototype.app = function () {
   this.mkdir('app/scripts/directives');
   this.mkdir('app/scripts/filters');
   this.mkdir('app/scripts/services');
+  this.mkdir('app/views');
   this.mkdir('app/images');
   this.mkdir('app/fonts');
   this.write('app/index.html', this.indexFile);
