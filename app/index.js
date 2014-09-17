@@ -249,8 +249,8 @@ AppGenerator.prototype.writeIndex = function () {
   this.indexFile = this.appendFiles({
     html: this.indexFile,
     fileType: 'js',
-    optimizedPath: 'scripts/main.js',
-    sourceFileList: ['scripts/main.js']
+    optimizedPath: 'scripts/app.js',
+    sourceFileList: ['scripts/app.js']
   });
 };
 
