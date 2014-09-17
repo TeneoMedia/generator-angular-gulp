@@ -4,7 +4,7 @@
 
 Install `generator-angular`:
 ```
-npm install -g https://github.com/TeneoMedia/generator-angular-gulp.git
+npm install -g git+https://github.com/TeneoMedia/generator-angular-gulp.git
 ```
 
 Make a new directory, and `cd` into it:

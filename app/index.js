@@ -133,6 +133,8 @@ AppGenerator.prototype.askForModules = function askForModules() {
     var angMods = [];
     this.angModules = [];
 
+    angMods.push("'ui.router'");
+
     if (this.animateModule) {
       angMods.push("'ngAnimate'");
       this.angModules.push('angular-animate');
@@ -165,7 +167,7 @@ AppGenerator.prototype.askForModules = function askForModules() {
       this.angModules.push('angular-touch');
     }
 
-    
+
     if (angMods.length) {
       this.angularModules = '\n    ' + angMods.join(',\n    ') + '\n  ';
     }
