@@ -16,6 +16,9 @@ var AppGenerator = module.exports = function Appgenerator(args, options, config)
   this.appname = this._.camelize(this._.slugify(this._.humanize(this.appname)));
   this.scriptAppName = this.appname;
 
+  this.angModules = [];
+  this.angularModules = '';
+
   // setup the test-framework property, gulpfile template will need this
   // this.testFramework = options['test-framework'] || 'mocha';
 
@@ -84,6 +87,80 @@ AppGenerator.prototype.askFor = function askFor() {
   }.bind(this));
 };
 
+AppGenerator.prototype.askForRouter = function askForRouter() {
+  var cb = this.async();
+
+  var prompts = [
+    {
+      type: 'list',
+      name: 'router',
+      message: 'Would you like to add a router?',
+      choices: [
+        {
+          name: 'ui-router',
+          value: 'ui.router'
+        },
+        {
+          name: 'ngRoute',
+          value: 'ngRoute'
+        },
+        {
+          name: 'No routing module',
+          value: 'none'
+        }
+      ]
+    }
+  ];
+
+  this.prompt(prompts, function (answer) {
+
+    this.router = answer.router;
+
+    this.angularModules += '\n    ' + answer.router + '\n  ';
+
+    cb();
+  }.bind(this));
+
+
+}
+
+AppGenerator.prototype.askForResource = function askForResource() {
+  var cb = this.async();
+
+  var prompts = [
+    {
+      type: 'list',
+      name: 'resource',
+      message: 'Would you like to add a resource module?',
+      choices: [
+        {
+          name: 'Restangular',
+          value: 'restangular'
+        },
+        {
+          name: 'ngResource',
+          value: 'ngResource'
+        },
+        {
+          name: 'No resource module',
+          value: 'none'
+        }
+      ]
+    }
+  ];
+
+  this.prompt(prompts, function (answer) {
+
+    this.router = answer.resource;
+
+    this.angularModules += '\n    ' + answer.router + '\n  ';
+
+    cb();
+  }.bind(this));
+
+
+}
+
 AppGenerator.prototype.askForModules = function askForModules() {
   var cb = this.async();
 
@@ -99,14 +176,6 @@ AppGenerator.prototype.askForModules = function askForModules() {
     }, {
       value: 'cookiesModule',
       name: 'angular-cookies.js',
-      checked: true
-    }, {
-      value: 'resourceModule',
-      name: 'angular-resource.js',
-      checked: true
-    }, {
-      value: 'routeModule',
-      name: 'angular-route.js',
       checked: true
     }, {
       value: 'sanitizeModule',
@@ -125,15 +194,12 @@ AppGenerator.prototype.askForModules = function askForModules() {
     var hasMod = function (mod) { return props.modules.indexOf(mod) !== -1; };
     this.animateModule = hasMod('animateModule');
     this.cookiesModule = hasMod('cookiesModule');
-    this.resourceModule = hasMod('resourceModule');
-    this.routeModule = hasMod('routeModule');
     this.sanitizeModule = hasMod('sanitizeModule');
     this.touchModule = hasMod('touchModule');
 
     var angMods = [];
-    this.angModules = [];
 
-    angMods.push("'ui.router'");
+    
 
     if (this.animateModule) {
       angMods.push("'ngAnimate'");
@@ -144,17 +210,6 @@ AppGenerator.prototype.askForModules = function askForModules() {
       angMods.push("'ngCookies'");
       this.angModules.push('angular-cookies');
 
-    }
-
-    if (this.resourceModule) {
-      angMods.push("'ngResource'");
-      this.angModules.push('angular-resource');
-    }
-
-    if (this.routeModule) {
-      angMods.push("'ngRoute'");
-      this.angModules.push('angular-route');
-      this.env.options.ngRoute = true;
     }
 
     if (this.sanitizeModule) {
@@ -169,7 +224,7 @@ AppGenerator.prototype.askForModules = function askForModules() {
 
 
     if (angMods.length) {
-      this.angularModules = '\n    ' + angMods.join(',\n    ') + '\n  ';
+      this.angularModules += '\n    ' + angMods.join(',\n    ') + '\n  ';
     }
 
     cb();
@@ -203,7 +258,17 @@ AppGenerator.prototype.bower = function () {
     this.log('ang mod here ' + this.angModules[i]);
   }
 
-  bower.dependencies['ui-router'] = "~0.2.11";
+  if (this.router !== 'none') {
+    if (this.router === 'uirouter') bower.dependencies['ui-router'] = "~0.2.11";
+    if (this.router === 'ngroute') bower.dependencies['angular-route'] = "~1.2.24";
+  }
+
+  if (this.resource !== 'none') {
+    if (this.router === 'restangular') bower.dependencies['restangular'] = "~1.4.0";
+    if (this.router === 'ngResource') bower.dependencies['angular-route'] = "~1.2.24";
+  }
+
+
   if (this.includeBootstrap) {
     var bs = 'bootstrap' + (this.includeSass ? '-sass-official' : '');
     bower.dependencies[bs] = '~3.2.0';
